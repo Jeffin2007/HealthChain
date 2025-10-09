@@ -1,0 +1,84 @@
+/* src/styles/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* CSS variables default (used by BackgroundEffect.jsx) */
+:root{
+  --mx: 0px; /* mouse delta from center x */
+  --my: 0px; /* mouse delta from center y */
+  --hc-500: #ef4444;
+  --hc-700: #b91c1c;
+}
+
+/* overall body gradient (white center, glossy red edges) */
+body {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial;
+  min-height: 100vh;
+  position: relative;
+  background: radial-gradient( at center, rgba(255,255,255,1) 0%, rgba(255,245,245,0.95) 30%, rgba(255,235,235,0.9) 45%, rgba(255,210,210,0.85) 60%, rgba(239,68,68,0.06) 85% );
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #111827;
+}
+
+/* animated glossy red spotlight that follows cursor (soft) */
+body::before {
+  content: "";
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: 120vmax;
+  height: 120vmax;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(circle at calc(50% + var(--mx) / 6) calc(50% + var(--my) / 6), rgba(255,120,120,0.06), transparent 10%),
+    radial-gradient(circle at calc(40% + var(--mx) / 10) calc(40% + var(--my) / 10), rgba(201,31,31,0.03), transparent 20%);
+  transition: background 160ms linear;
+  filter: blur(40px);
+}
+
+/* keep pages above pseudo element */
+#root, .max-w-7xl { position: relative; z-index: 1; }
+
+/* Navbar link micro animations */
+.nav-link {
+  transition: transform .18s ease, color .18s ease;
+  will-change: transform;
+}
+.nav-link:hover { transform: translateY(-4px); color: var(--hc-500); }
+
+/* glossy CTA */
+.btn-gloss {
+  background: linear-gradient(90deg, #ff6b6b, #c81f1f);
+  color: white;
+  box-shadow: 0 18px 50px rgba(200,30,30,0.12);
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+.btn-gloss:hover { transform: translateY(-4px); box-shadow: 0 28px 80px rgba(200,30,30,0.16); }
+
+/* cards use soft gloss */
+.gloss-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.92));
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(15,23,42,0.06);
+  transition: transform .18s ease, box-shadow .18s ease;
+  will-change: transform;
+}
+
+/* subtle parallax: use --mx/--my to translate slightly */
+.parallax {
+  transform: translateX(calc(var(--mx) / 80)) translateY(calc(var(--my) / 80));
+}
+
+/* About card stronger hover */
+.about-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 26px 60px rgba(16,24,40,0.12);
+}
+
+/* small utility */
+.text-muted { color: #6b7280; }
