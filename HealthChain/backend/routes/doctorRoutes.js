@@ -1,11 +1,13 @@
-// backend/routes/doctorRoutes.js
-const express = require("express");
-const router = express.Router();
-const auth = require("../middleware/authMiddleware");
-const role = require("../middleware/roleMiddleware");
-const { getDoctorPatients, createPrescription } = require("../controllers/doctorController");
+const express = require('express');
+const auth = require('../middleware/authMiddleware');
+const role = require('../middleware/roleMiddleware');
+const validateRequest = require('../middleware/validateRequest');
+const { getDoctorPatients, createPrescription } = require('../controllers/doctorController');
+const { createPrescriptionValidation } = require('../validators/doctorValidators');
 
-router.get("/patients", auth, role("doctor"), getDoctorPatients);
-router.post("/prescriptions", auth, role("doctor"), createPrescription);
+const router = express.Router();
+
+router.get('/patients', auth, role('doctor'), getDoctorPatients);
+router.post('/prescriptions', auth, role('doctor'), createPrescriptionValidation, validateRequest, createPrescription);
 
 module.exports = router;

@@ -1,7 +1,5 @@
-// src/hooks/useAuth.js
+import { useAuthContext } from '../context/AuthContext';
+
 export default function useAuth() {
-  const token = localStorage.getItem("hc_token");
-  const user = JSON.parse(localStorage.getItem("hc_user") || "null");
-  const isLoggedIn = !!token;
-  return { token, user, isLoggedIn };
+  return useAuthContext();
 }
