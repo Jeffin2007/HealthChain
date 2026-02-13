@@ -1,36 +1,33 @@
-// src/pages/Dashboard.jsx
-import React from "react";
-import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 export default function Dashboard() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center text-white bg-gradient-to-br from-red-700 via-red-600 to-red-800 relative overflow-hidden">
-      {/* Animated circles background */}
-      <div className="absolute inset-0 overflow-hidden">
+    <div className="min-h-screen flex flex-col items-center justify-center text-gray-900 muted-red-gradient relative overflow-hidden px-6">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
-          className="absolute top-1/4 left-1/3 w-72 h-72 bg-red-500/30 rounded-full blur-3xl"
-          animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
+          className="absolute top-1/4 left-1/3 w-72 h-72 bg-red-200/25 rounded-full blur-3xl"
+          animate={{ scale: [1, 1.16, 1], opacity: [0.35, 0.55, 0.35] }}
           transition={{ duration: 6, repeat: Infinity }}
         />
         <motion.div
-          className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-red-400/20 rounded-full blur-3xl"
-          animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3] }}
+          className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-red-100/20 rounded-full blur-3xl"
+          animate={{ scale: [1, 1.24, 1], opacity: [0.26, 0.46, 0.26] }}
           transition={{ duration: 8, repeat: Infinity }}
         />
       </div>
 
-      {/* Content */}
       <motion.div
-        className="z-10 text-center px-6"
+        className="z-10 text-center px-6 premium-panel rounded-3xl py-12 max-w-4xl"
         initial={{ opacity: 0, y: 60 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1 }}
       >
-        <h1 className="text-6xl font-extrabold mb-4 drop-shadow-lg">
-          Welcome to <span className="text-white/90">HealthChain</span>
+        <h1 className="text-5xl md:text-6xl font-extrabold mb-4 text-hc-700 drop-shadow-sm">
+          Welcome to <span className="text-red-500">HealthChain</span>
         </h1>
-        <p className="text-lg text-white/80 max-w-2xl mx-auto mb-8">
+        <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
           The next-generation healthcare platform connecting patients, doctors, and pharmacies seamlessly.
         </p>
 
@@ -42,9 +39,8 @@ export default function Dashboard() {
         </Link>
       </motion.div>
 
-      {/* Subtle floating animation for logo */}
       <motion.div
-        className="absolute bottom-10 text-white/60 text-sm"
+        className="absolute bottom-10 text-gray-500 text-sm"
         animate={{ y: [0, -8, 0] }}
         transition={{ duration: 3, repeat: Infinity }}
       >
