@@ -1,66 +1,43 @@
-import React from "react";
-import { motion } from "framer-motion";
-import { User, Stethoscope, HeartPulse, Calendar } from "lucide-react";
+import React from 'react';
+import { motion } from 'framer-motion';
+import dummyData from '../utils/dummyData';
 
-export default function Doctors({ role }) {
-  const doctor = dummyData.doctors[0]; // Static for now
-  const patients = dummyData.patients; // Assigned patients list
+export default function Doctors() {
+  const doctor = dummyData.doctors[0];
+  const patients = dummyData.patients;
 
   return (
-    <div className="min-h-screen bg-animated-gradient p-8">
+    <div className="min-h-screen muted-red-gradient p-6 md:p-8 pt-24">
       <motion.h1
-        className="text-4xl font-bold text-white text-center mb-10"
+        className="hc-h1 text-hc-700 text-center mb-8"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
         Dr. {doctor.name}'s Dashboard
       </motion.h1>
 
-      <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8">
-        {/* Doctor Profile */}
-        <motion.div
-          whileHover={{ scale: 1.03 }}
-          className="bg-white rounded-xl shadow-xl p-6"
-        >
+      <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-6">
+        <motion.div whileHover={{ scale: 1.01 }} className="premium-panel rounded-xl p-6">
           <div className="flex items-center gap-4">
-            <img
-              src={doctor.photo}
-              alt="Doctor"
-              className="w-20 h-20 rounded-full border-4 border-red-500"
-            />
+            <img src={doctor.avatar} alt="Doctor" className="w-20 h-20 rounded-full border-2 border-red-200 object-cover" />
             <div>
-              <h2 className="text-2xl font-bold text-gray-800">{doctor.name}</h2>
-              <p className="text-gray-600">Experience: {doctor.experience} years</p>
-              <p className="text-gray-600">{doctor.specialization}</p>
+              <h2 className="hc-h2 text-gray-800">{doctor.name}</h2>
+              <p className="hc-body">Experience: {doctor.experienceYears} years</p>
+              <p className="text-sm text-gray-500">{doctor.specialty}</p>
             </div>
           </div>
         </motion.div>
 
-        {/* Assigned Patients */}
-        <motion.div
-          whileHover={{ scale: 1.03 }}
-          className="bg-white rounded-xl shadow-xl p-6"
-        >
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Assigned Patients</h2>
-          <div className="space-y-4">
+        <motion.div whileHover={{ scale: 1.01 }} className="premium-panel rounded-xl p-6">
+          <h2 className="hc-h2 text-gray-800 mb-4">Assigned Patients</h2>
+          <div className="space-y-3">
             {patients.map((patient) => (
-              <motion.div
-                key={patient.id}
-                whileHover={{ scale: 1.02 }}
-                className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg shadow-sm"
-              >
-                <img
-                  src={patient.photo}
-                  alt="Patient"
-                  className="w-14 h-14 rounded-full border-2 border-red-400"
-                />
+              <motion.div key={patient.id} whileHover={{ scale: 1.01 }} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-100">
+                <img src={patient.avatar} alt="Patient" className="w-14 h-14 rounded-full border-2 border-red-100 object-cover" />
                 <div>
-                  <h3 className="text-lg font-semibold">{patient.name}</h3>
-                  <p className="text-gray-600 text-sm">
-                    {patient.age} yrs • {patient.gender} • Blood: {patient.bloodGroup}
-                  </p>
-                  <p className="text-gray-600 text-sm">
-                    Last Appointment: {patient.lastAppointment}
+                  <h3 className="text-base font-semibold text-gray-800">{patient.name}</h3>
+                  <p className="text-sm text-gray-600">
+                    {patient.age} yrs • {patient.sex} • Blood: {patient.bloodGroup}
                   </p>
                 </div>
               </motion.div>

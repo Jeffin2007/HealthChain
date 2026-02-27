@@ -1,0 +1,41 @@
+name: platform-ci-cd
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  validate-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install backend dependencies
+        working-directory: HealthChain/backend
+        run: npm ci
+
+      - name: Run backend lint/tests
+        working-directory: HealthChain/backend
+        run: npm test --if-present
+
+      - name: Install frontend dependencies
+        working-directory: HealthChain/frontend
+        run: npm ci
+
+      - name: Run frontend tests
+        working-directory: HealthChain/frontend
+        run: npm test -- --watchAll=false
+
+      - name: Build frontend
+        working-directory: HealthChain/frontend
+        run: npm run build
+
+      - name: Build patient-service container
+        run: docker build -t ghcr.io/healthchain/patient-service:${{ github.sha }} -f HealthChain/backend/Dockerfile HealthChain/backend

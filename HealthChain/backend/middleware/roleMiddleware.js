@@ -1,8 +1,15 @@
-// backend/middleware/roleMiddleware.js
-module.exports = function requiredRole(role) {
+const { sendError } = require('../utils/apiResponse');
+
+module.exports = function allowRoles(...allowedRoles) {
   return (req, res, next) => {
-    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
-    if (req.user.role !== role) return res.status(403).json({ error: "Forbidden - wrong role" });
+    if (!req.user) {
+      return sendError(res, 'Not authenticated', 401);
+    }
+
+    if (!allowedRoles.includes(req.user.role)) {
+      return sendError(res, `Forbidden for role: ${req.user.role}`, 403);
+    }
+
     next();
-  }
+  };
 };
