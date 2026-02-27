@@ -1,32 +1,47 @@
-// backend/controllers/authController.js
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const User = require("../models/User");
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+const asyncHandler = require('../utils/asyncHandler');
+const AppError = require('../utils/AppError');
+const { sendSuccess } = require('../utils/apiResponse');
 
-const login = async (req, res) => {
+function getBcrypt() {
   try {
-    const { username, password } = req.body;
-    if (!username || !password) return res.status(400).json({ error: "username and password required" });
-
-    const user = await User.findOne({ username }).lean();
-    if (!user) return res.status(401).json({ error: "Invalid credentials" });
-
-    const match = await bcrypt.compare(password, user.passwordHash);
-    if (!match) return res.status(401).json({ error: "Invalid credentials" });
-
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET || "secret", { expiresIn: process.env.JWT_EXPIRES_IN || "7d" });
-
-    // remove sensitive fields
-    delete user.passwordHash;
-    return res.json({ user, token });
+    return require('bcrypt');
   } catch (err) {
-    console.error("authController.login error:", err);
-    return res.status(500).json({ error: "Server error" });
+    return null;
   }
-};
+}
 
-const register = async (req, res) => {
-  // (not required now) keep for completeness
-};
+const login = asyncHandler(async (req, res) => {
+  const { username, password } = req.body;
+
+  const user = await User.findOne({ username }).lean();
+  if (!user) {
+    throw new AppError('Invalid credentials', 401);
+  }
+
+  const bcrypt = getBcrypt();
+  if (!bcrypt) {
+    throw new AppError('Password engine unavailable on this server. Reinstall backend dependencies.', 503);
+  }
+
+  const match = await bcrypt.compare(password, user.passwordHash);
+  if (!match) {
+    throw new AppError('Invalid credentials', 401);
+  }
+
+  const token = jwt.sign(
+    { id: user._id, role: user.role },
+    process.env.JWT_SECRET || 'secret',
+    { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+  );
+
+  delete user.passwordHash;
+  return sendSuccess(res, { user, token }, 'Login successful');
+});
+
+const register = asyncHandler(async (req, res) => {
+  return sendSuccess(res, {}, 'Register endpoint reserved for future use', 501);
+});
 
 module.exports = { login, register };
