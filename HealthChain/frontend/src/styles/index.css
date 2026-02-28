@@ -43,6 +43,18 @@ body::after {
   background: linear-gradient(to bottom, rgba(255,255,255,0.36), rgba(255,255,255,0.08));
 }
 
+#root, .max-w-7xl { position: relative; z-index: 1; }
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.36), rgba(255,255,255,0.08));
+}
+
 #root, .max-w-7xl { 
   position: relative; 
   z-index: 1; 
@@ -54,6 +66,8 @@ body::after {
   transition: transform .18s ease, color .18s ease;
   will-change: transform;
 }
+.nav-link:hover { transform: translateY(-2px); color: var(--hc-500); }
+
 
 .nav-link:hover { 
   transform: translateY(-2px); 
@@ -68,6 +82,8 @@ body::after {
   box-shadow: 0 10px 24px rgba(220, 38, 38, 0.22);
   transition: transform .16s ease, box-shadow .16s ease;
 }
+.btn-gloss:hover { transform: translateY(-2px); box-shadow: 0 16px 30px rgba(220, 38, 38, 0.24); }
+
 
 .btn-gloss:hover { 
   transform: translateY(-2px); 
@@ -83,6 +99,21 @@ body::after {
   border: 1px solid rgba(226, 232, 240, 0.9);
   transition: transform .18s ease, box-shadow .18s ease;
   will-change: transform;
+}
+
+.parallax {
+  transform: translateX(calc(var(--mx) / 80)) translateY(calc(var(--my) / 80));
+}
+
+.about-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 20px 42px rgba(15,23,42,0.11);
+}
+
+.text-muted { color: #6b7280; }
+
+.section-card {
+  @apply bg-white border border-gray-200 rounded-2xl shadow-sm;
 }
 
 .about-card:hover {
@@ -121,6 +152,9 @@ body::after {
     linear-gradient(160deg, #f8fafc 0%, #f9fafb 48%, #f3f4f6 100%);
 }
 
+.hc-h1 { @apply text-[2rem] md:text-[2.4rem] font-bold tracking-tight leading-tight; }
+.hc-h2 { @apply text-xl md:text-2xl font-semibold leading-snug; }
+.hc-body { @apply text-sm md:text-base text-gray-700 leading-relaxed; }
 /* Typography tokens */
 
 .hc-h1 { 
@@ -141,6 +175,8 @@ body::after {
   @apply mt-1 p-3 rounded-lg border border-gray-300 w-full bg-white text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-300;
 }
 
+
+/* WCAG-friendly keyboard focus treatment */
 /* WCAG-friendly keyboard focus */
 
 a:focus-visible,
