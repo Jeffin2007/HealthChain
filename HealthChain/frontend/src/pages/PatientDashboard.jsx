@@ -21,10 +21,26 @@ function StatCard({ label, value, helper }) {
   );
 }
 
-export default function PatientDashboard({ user }) {
-  const [data, setData] = useState(null);
 
-  if (!user) return <Navigate to="/signin" />;
+function profileFallback(name = 'Patient') {
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=fde8e8&color=991b1b&size=128`;
+}
+
+function StatCard({ label, value, helper }) {
+  return (
+    <div className="premium-panel p-4 rounded-xl">
+      <p className="text-xs uppercase tracking-wide text-gray-500">{label}</p>
+      <p className="text-2xl font-semibold text-gray-800 mt-1">{value}</p>
+      {helper ? <p className="text-xs text-gray-500 mt-1">{helper}</p> : null}
+    </div>
+  );
+}
+
+export default function PatientDashboard() {
+  const [data, setData] = useState(null);
+  const { user } = useAuth();
+
+  if (!user) return <Navigate to="/signin" replace />;
 
   useEffect(() => {
     async function fetchData() {
