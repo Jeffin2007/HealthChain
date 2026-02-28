@@ -10,7 +10,9 @@ const Dashboard = lazy(() => import('./pages/Dashboard'));
 const About = lazy(() => import('./pages/About'));
 const SelectRole = lazy(() => import('./pages/SelectRole'));
 const SignIn = lazy(() => import('./pages/SignIn'));
+const Doctors = lazy(() => import('./pages/Doctors'));
 const PatientDetails = lazy(() => import('./pages/PatientDetails'));
+const PatientDashboard = lazy(() => import('./pages/PatientDashboard'));
 
 function AppRoutes() {
   const navigate = useNavigate();
@@ -32,19 +34,41 @@ function AppRoutes() {
     <>
       <Navbar />
       <div className="pt-4">
-        <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-600 via-red-500 to-red-700"><LoadingSpinner /></div>}>
+        <Suspense
+          fallback={
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-600 via-red-500 to-red-700">
+              <LoadingSpinner />
+            </div>
+          }
+        >
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/about" element={<About />} />
             <Route path="/select-role" element={<SelectRole />} />
             <Route path="/signin" element={<SignIn />} />
             <Route
+              path="/doctors"
+              element={
+                <ProtectedRoute>
+                  <Doctors />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/patient/dashboard"
+              element={
+                <ProtectedRoute>
+                  <PatientDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/patient/details"
-              element={(
+              element={
                 <ProtectedRoute>
                   <PatientDetails />
                 </ProtectedRoute>
-              )}
+              }
             />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

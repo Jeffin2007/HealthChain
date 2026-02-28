@@ -107,25 +107,28 @@ export default function PatientDetails() {
   const appointments = useMemo(() => data?.appointments || [], [data]);
 
   const fetchProfile = useCallback(async () => {
-  try {
-    const res = await profileRequest.run(
-      () => api.get('/patients/me'),
-      { retries: 1 }
-    );
+    try {
+      const res = await profileRequest.run(() => api.get('/patients/me'), {
+        retries: 1,
+      });
 
-    const payload = formatApiData(res.data);
+      const payload = formatApiData(res.data);
 
-    setData({
-      patient: payload,
-      prescriptions: payload.prescriptions || [],
-      appointments: payload.appointments || [],
-      medicalHistory: payload.medicalHistory || [],
-    });
-  } catch {
-    setData(FALLBACK);
-    addToast('Using demo patient data due to API issue.', 'warning');
-  }
-}, [addToast, profileRequest]);
+      setData({
+        patient: payload,
+        prescriptions: payload.prescriptions || [],
+        appointments: payload.appointments || [],
+        medicalHistory: payload.medicalHistory || [],
+      });
+    } catch {
+      setData(FALLBACK);
+      addToast('Using demo patient data due to API issue.', 'warning');
+    }
+  }, [addToast, profileRequest]);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   const loadRiskPrediction = async () => {
     try {
@@ -157,7 +160,6 @@ export default function PatientDetails() {
   return (
     <div className="min-h-screen muted-red-gradient text-gray-900 px-4 sm:px-6 lg:px-10 py-8 pt-24">
       <div className="max-w-6xl mx-auto space-y-6">
-
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <h1 className="hc-h1">Welcome, {patient.name || 'Patient'}</h1>
           <Button
@@ -173,7 +175,6 @@ export default function PatientDetails() {
         <InlineError message={profileRequest.error} />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -182,13 +183,25 @@ export default function PatientDetails() {
             <h2 className="hc-h2 text-hc-700 mb-4">Patient Bio</h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm md:text-base">
-              <p><strong>Blood Group:</strong> {patient.bloodGroup || 'N/A'}</p>
-              <p><strong>Current Status:</strong> {patient.currentStatus?.status || 'N/A'}</p>
-              <p className="sm:col-span-2">
-                <strong>Allergies:</strong> {patient.allergies?.length ? patient.allergies.join(', ') : 'None'}
+              <p>
+                <strong>Blood Group:</strong>{' '}
+                {patient.bloodGroup || 'N/A'}
+              </p>
+              <p>
+                <strong>Current Status:</strong>{' '}
+                {patient.currentStatus?.status || 'N/A'}
               </p>
               <p className="sm:col-span-2">
-                <strong>Medicines:</strong> {patient.medicines?.length ? patient.medicines.join(', ') : 'No current medicines'}
+                <strong>Allergies:</strong>{' '}
+                {patient.allergies?.length
+                  ? patient.allergies.join(', ')
+                  : 'None'}
+              </p>
+              <p className="sm:col-span-2">
+                <strong>Medicines:</strong>{' '}
+                {patient.medicines?.length
+                  ? patient.medicines.join(', ')
+                  : 'No current medicines'}
               </p>
             </div>
           </motion.section>
@@ -230,6 +243,84 @@ export default function PatientDetails() {
           </motion.section>
         </div>
 
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <section className="premium-panel p-6 rounded-2xl text-gray-800">
+            <h2 className="hc-h2 text-hc-700 mb-3">Prescriptions</h2>
+            {prescriptions.length ? (
+              <div className="overflow-auto">
+                <table className="w-full text-sm text-left text-gray-700 min-w-[460px]">
+                  <thead className="text-gray-500 border-b border-gray-200">
+                    <tr>
+                      <th className="py-2">Doctor</th>
+                      <th className="py-2">Status</th>
+                      <th className="py-2">Created</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {prescriptions.map((pres) => (
+                      <tr
+                        key={pres._id}
+                        className="border-b border-gray-100"
+                      >
+                        <td className="py-2">
+                          {pres.doctor?.name || 'N/A'}
+                        </td>
+                        <td className="py-2 capitalize">
+                          {pres.pharmacyStatus || 'pending'}
+                        </td>
+                        <td className="py-2">
+                          {pres.createdAt
+                            ? format(
+                                new Date(pres.createdAt),
+                                'dd MMM yyyy'
+                              )
+                            : '-'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <EmptyState
+                title="No prescriptions yet"
+                description="Once your doctor issues prescriptions, they will appear here."
+              />
+            )}
+          </section>
+
+          <section className="premium-panel p-6 rounded-2xl text-gray-800">
+            <h2 className="hc-h2 text-hc-700 mb-3">Appointments</h2>
+            {appointments.length ? (
+              <ul className="space-y-2 text-sm">
+                {appointments.map((appt) => (
+                  <li
+                    key={appt._id}
+                    className="p-3 rounded-lg bg-white border border-gray-100 flex items-center justify-between shadow-sm gap-3"
+                  >
+                    <span className="truncate">
+                      {appt.doctor?.name || 'Doctor'} -{' '}
+                      {appt.status || 'scheduled'}
+                    </span>
+                    <span className="text-gray-500 shrink-0">
+                      {appt.date
+                        ? format(
+                            new Date(appt.date),
+                            'dd MMM, hh:mm a'
+                          )
+                        : '-'}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <EmptyState
+                title="No appointments scheduled"
+                description="Book your next consultation to see it here."
+              />
+            )}
+          </section>
+        </div>
       </div>
     </div>
   );

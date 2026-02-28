@@ -51,7 +51,11 @@ const PORT = process.env.PORT || 5000;
 const mongoUri = process.env.MONGODB_URI;
 
 mongoose
-  .connect(mongoUri)
+  .connect(mongoUri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 10000,
+  })
   .then(() => {
     isDbConnected = true;
     console.log('MongoDB connected');
@@ -61,8 +65,13 @@ mongoose
     });
   })
   .catch((err) => {
+    isDbConnected = false;
     console.error('MongoDB connection error:', err.message);
   });
+
+mongoose.connection.on('connected', () => {
+  isDbConnected = true;
+});
 
 mongoose.connection.on('disconnected', () => {
   isDbConnected = false;

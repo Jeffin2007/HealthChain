@@ -9,6 +9,7 @@ import Button from '../components/ui/Button';
 
 function validate(form) {
   const errors = {};
+
   if (!form.username.trim()) {
     errors.username = 'Username is required';
   }
@@ -68,7 +69,7 @@ export default function SignIn() {
       addToast(`Welcome back, ${user.name || user.username}!`, 'success');
 
       if (user.role === 'patient') {
-        navigate('/patient/details');
+        navigate('/patient/dashboard');
       } else {
         navigate('/');
       }
