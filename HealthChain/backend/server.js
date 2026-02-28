@@ -47,6 +47,17 @@ app.get('/health', (req, res) => {
   });
 });
 
+
+app.use('/api/auth', authRoutes);
+app.use('/api/patients', patientRoutes);
+app.use('/api/doctors', doctorRoutes);
+app.use('/api/prescriptions', prescriptionRoutes);
+app.use('/api/ai', aiRoutes);
+
+app.get('/', (req, res) => {
+  res.json({ success: true, message: 'HealthChain API', data: { status: 'ok' } });
+});
+
 app.use(notFoundHandler);
 app.use(errorHandler);
 
@@ -91,3 +102,15 @@ app.listen(PORT, () => {
     console.error('MongoDB runtime error:', err.message);
   });
 });
+mongoose
+  .connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log('MongoDB connected');
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  })
+  .catch((err) => {
+    console.error('MongoDB connection error:', err);
+  });

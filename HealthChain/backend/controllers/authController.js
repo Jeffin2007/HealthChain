@@ -1,3 +1,4 @@
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const asyncHandler = require('../utils/asyncHandler');
@@ -23,6 +24,29 @@ const login = asyncHandler(async (req, res) => {
   const bcrypt = getBcrypt();
   if (!bcrypt) {
     throw new AppError('Password engine unavailable on this server. Reinstall backend dependencies.', 503);
+  }
+
+  const match = await bcrypt.compare(password, user.passwordHash);
+  if (!match) {
+    throw new AppError('Invalid credentials', 401);
+  }
+
+  const token = jwt.sign(
+    { id: user._id, role: user.role },
+    process.env.JWT_SECRET || 'secret',
+    { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+  );
+
+  delete user.passwordHash;
+  return sendSuccess(res, { user, token }, 'Login successful');
+});
+
+const login = asyncHandler(async (req, res) => {
+  const { username, password } = req.body;
+
+  const user = await User.findOne({ username }).lean();
+  if (!user) {
+    throw new AppError('Invalid credentials', 401);
   }
 
   const match = await bcrypt.compare(password, user.passwordHash);

@@ -11,6 +11,24 @@ const variants = {
 function Button({ children, loading, className = '', disabled, variant = 'primary', ...props }) {
   return (
     <button
+  primary:
+    'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-sm hover:shadow-md hover:-translate-y-[1px]',
+  secondary:
+    'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50',
+};
+
+function Button({
+  children,
+  loading = false,
+  className = '',
+  disabled = false,
+  variant = 'primary',
+  type = 'button',
+  ...props
+}) {
+  return (
+    <button
+      type={type}
       {...props}
       disabled={disabled || loading}
       className={`${base} ${variants[variant] || variants.primary} ${className}`}

@@ -12,6 +12,8 @@ function validate(form) {
   if (!form.username.trim()) errors.username = 'Username is required';
   if (!form.password) errors.password = 'Password is required';
   else if (form.password.length < 6) errors.password = 'Password must be at least 6 characters';
+  else if (form.password.length < 6)
+    errors.password = 'Password must be at least 6 characters';
   return errors;
 }
 
@@ -27,10 +29,24 @@ export default function SignIn() {
   const { loading, error, setError, run } = useApiRequest();
 
   const canSubmit = useMemo(() => form.username.trim() && form.password.length >= 6, [form]);
+  const [form, setForm] = useState({
+    username: '',
+    password: '',
+    remember: false,
+  });
+
+  const [fieldErrors, setFieldErrors] = useState({});
+  const { loading, error, setError, run } = useApiRequest();
+
+  const canSubmit = useMemo(
+    () => form.username.trim() && form.password.length >= 6,
+    [form]
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
     const errors = validate(form);
     setFieldErrors(errors);
 
@@ -51,6 +67,27 @@ export default function SignIn() {
       else navigate('/');
     } catch (err) {
       const msg = err?.response?.data?.message || err?.message || 'Login failed';
+      const payload = await run(
+        () => loginRequest(form.username, form.password),
+        { retries: 1, retryDelayMs: 700 }
+      );
+
+      const { user, token } = payload || {};
+
+      if (!token || !user) {
+        throw new Error('Invalid login response');
+      }
+
+      login({ token, user, remember: form.remember });
+      addToast(`Welcome back, ${user.name || user.username}!`, 'success');
+
+      if (user.role === 'patient') navigate('/patient/details');
+      else navigate('/');
+    } catch (err) {
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        'Login failed';
       setError(msg);
     }
   };
@@ -61,6 +98,15 @@ export default function SignIn() {
         <h2 className="hc-h2 text-red-600 mb-5">{role} Sign In</h2>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3" noValidate>
+        <h2 className="hc-h2 text-red-600 mb-5">
+          {role} Sign In
+        </h2>
+
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col gap-3"
+          noValidate
+        >
           <label className="text-sm text-gray-700">
             Username
             <input
@@ -68,6 +114,12 @@ export default function SignIn() {
               placeholder="Username"
               value={form.username}
               onChange={(e) => setForm((prev) => ({ ...prev, username: e.target.value }))}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  username: e.target.value,
+                }))
+              }
               aria-invalid={Boolean(fieldErrors.username)}
               aria-label="Username"
             />
@@ -82,6 +134,12 @@ export default function SignIn() {
               placeholder="Password"
               value={form.password}
               onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  password: e.target.value,
+                }))
+              }
               aria-invalid={Boolean(fieldErrors.password)}
               aria-label="Password"
             />
@@ -93,6 +151,12 @@ export default function SignIn() {
               type="checkbox"
               checked={form.remember}
               onChange={(e) => setForm((prev) => ({ ...prev, remember: e.target.checked }))}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  remember: e.target.checked,
+                }))
+              }
             />
             Remember me on this device
           </label>
@@ -111,6 +175,10 @@ export default function SignIn() {
         </form>
 
         <p className="text-xs text-gray-500 mt-5">Demo: username <strong>madhan</strong> password <strong>madhan123</strong></p>
+        <p className="text-xs text-gray-500 mt-5">
+          Demo: username <strong>madhan</strong> password{' '}
+          <strong>madhan123</strong>
+        </p>
       </div>
     </div>
   );
