@@ -19,9 +19,23 @@ const FALLBACK = {
     bloodGroup: 'BV+',
     allergies: ['Weight'],
     medicines: ['Paracetamol 500mg', 'Azithromycin 500mg'],
-    currentStatus: { status: 'Appendix', notes: 'No heavy lifting recommended', since: new Date().toISOString() },
-    assignedDoctor: { name: 'Dr. Madhanu MBBS', specialty: 'General Physician', phone: '+91-2456143657', avatar: '/images/doc1.png' },
-    assistantDoctor: { name: 'Dr. Madhani MBBS', specialty: 'Internal Medicine', phone: '+91-9452863214', avatar: '/images/doc2.png' },
+    currentStatus: {
+      status: 'Appendix',
+      notes: 'No heavy lifting recommended',
+      since: new Date().toISOString(),
+    },
+    assignedDoctor: {
+      name: 'Dr. Madhanu MBBS',
+      specialty: 'General Physician',
+      phone: '+91-2456143657',
+      avatar: '/images/doc1.png',
+    },
+    assistantDoctor: {
+      name: 'Dr. Madhani MBBS',
+      specialty: 'Internal Medicine',
+      phone: '+91-9452863214',
+      avatar: '/images/doc2.png',
+    },
   },
   medicalHistory: [],
   prescriptions: [],
@@ -29,9 +43,25 @@ const FALLBACK = {
 };
 
 const RiskBadge = React.memo(function RiskBadge({ riskBand }) {
-  const cls = riskBand === 'HIGH' ? 'bg-red-100 text-red-700 border-red-200' : riskBand === 'MEDIUM' ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-emerald-100 text-emerald-700 border-emerald-200';
-  const icon = riskBand === 'HIGH' ? '🔴' : riskBand === 'MEDIUM' ? '🟠' : '🟢';
-  return <span className={`px-3 py-1 rounded-full text-xs border ${cls}`}>{icon} {riskBand || 'N/A'}</span>;
+  const cls =
+    riskBand === 'HIGH'
+      ? 'bg-red-100 text-red-700 border-red-200'
+      : riskBand === 'MEDIUM'
+      ? 'bg-amber-100 text-amber-700 border-amber-200'
+      : 'bg-emerald-100 text-emerald-700 border-emerald-200';
+
+  const icon =
+    riskBand === 'HIGH'
+      ? '🔴'
+      : riskBand === 'MEDIUM'
+      ? '🟠'
+      : '🟢';
+
+  return (
+    <span className={`px-3 py-1 rounded-full text-xs border ${cls}`}>
+      {icon} {riskBand || 'N/A'}
+    </span>
+  );
 });
 
 function formatApiData(payload) {
@@ -78,8 +108,18 @@ export default function PatientDetails() {
 
   const fetchProfile = useCallback(async () => {
     try {
-      const res = await profileRequest.run(() => api.get('/patients/me').then((r) => formatApiData(r.data)), { retries: 1 });
-      setData(res || FALLBACK);
+      const res = await profileRequest.run(() => api.get('/patients/me'), {
+        retries: 1,
+      });
+
+      const payload = formatApiData(res.data);
+
+      setData({
+        patient: payload,
+        prescriptions: payload.prescriptions || [],
+        appointments: payload.appointments || [],
+        medicalHistory: payload.medicalHistory || [],
+      });
     } catch {
       setData(FALLBACK);
       addToast('Using demo patient data due to API issue.', 'warning');
@@ -99,9 +139,13 @@ export default function PatientDetails() {
       }
 
       const risk = await riskRequest.run(
-        () => api.post('/ai/risk-prediction', { patientId }).then((r) => formatApiData(r.data)),
+        () =>
+          api
+            .post('/ai/risk-prediction', { patientId })
+            .then((r) => formatApiData(r.data)),
         { retries: 1, retryDelayMs: 600 }
       );
+
       setRiskData(risk);
       addToast('AI risk analysis completed.', 'success');
     } catch {
@@ -118,7 +162,12 @@ export default function PatientDetails() {
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <h1 className="hc-h1">Welcome, {patient.name || 'Patient'}</h1>
-          <Button onClick={fetchProfile} loading={profileRequest.loading} variant="secondary" className="px-4 py-2 text-sm shadow-sm" aria-label="Refresh patient profile">
+          <Button
+            onClick={fetchProfile}
+            loading={profileRequest.loading}
+            variant="secondary"
+            className="px-4 py-2 text-sm shadow-sm"
+          >
             Refresh profile
           </Button>
         </div>
@@ -126,61 +175,68 @@ export default function PatientDetails() {
         <InlineError message={profileRequest.error} />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="lg:col-span-2 premium-panel p-6 rounded-2xl text-gray-800">
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="lg:col-span-2 premium-panel p-6 rounded-2xl"
+          >
             <h2 className="hc-h2 text-hc-700 mb-4">Patient Bio</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm md:text-base leading-relaxed">
-              <p><strong>Blood Group:</strong> {patient.bloodGroup || 'N/A'}</p>
-              <p><strong>Current Status:</strong> {patient.currentStatus?.status || 'N/A'}</p>
-              <p className="sm:col-span-2"><strong>Allergies:</strong> {patient.allergies?.length ? patient.allergies.join(', ') : 'None'}</p>
-              <p className="sm:col-span-2"><strong>Medicines:</strong> {patient.medicines?.length ? patient.medicines.join(', ') : 'No current medicines'}</p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm md:text-base">
+              <p>
+                <strong>Blood Group:</strong>{' '}
+                {patient.bloodGroup || 'N/A'}
+              </p>
+              <p>
+                <strong>Current Status:</strong>{' '}
+                {patient.currentStatus?.status || 'N/A'}
+              </p>
+              <p className="sm:col-span-2">
+                <strong>Allergies:</strong>{' '}
+                {patient.allergies?.length
+                  ? patient.allergies.join(', ')
+                  : 'None'}
+              </p>
+              <p className="sm:col-span-2">
+                <strong>Medicines:</strong>{' '}
+                {patient.medicines?.length
+                  ? patient.medicines.join(', ')
+                  : 'No current medicines'}
+              </p>
             </div>
           </motion.section>
 
-          <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="premium-panel p-6 rounded-2xl text-gray-800">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="hc-h2 text-hc-700">AI Risk Insight</h2>
-              <span className="text-xs text-gray-500" title="Risk score is generated by a demo explainable rule-based model.">ⓘ</span>
-            </div>
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="premium-panel p-6 rounded-2xl"
+          >
+            <h2 className="hc-h2 text-hc-700 mb-4">AI Risk Insight</h2>
 
             {riskData ? (
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-gray-500">Risk score</p>
-                  <p className="text-2xl font-bold">{Math.round((riskData.riskScore || 0) * 100)}%</p>
+                <div className="flex justify-between">
+                  <span>Risk score</span>
+                  <span className="font-bold">
+                    {Math.round((riskData.riskScore || 0) * 100)}%
+                  </span>
                 </div>
-                <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden" role="progressbar" aria-label="Risk score indicator" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round((riskData.riskScore || 0) * 100)}>
-                  <div className="h-full bg-gradient-to-r from-red-400 to-red-600" style={{ width: `${Math.round((riskData.riskScore || 0) * 100)}%` }} />
-                </div>
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-gray-500">Risk band</p>
-                  <RiskBadge riskBand={riskData.riskBand} />
-                </div>
-                <div>
-                  <p className="text-sm font-medium mb-2">Contributing factors</p>
-                  {riskData.factors?.length ? (
-                    <ul className="space-y-1 text-sm">
-                      {riskData.factors.map((f) => (
-                        <li key={f.factor} className="flex justify-between border-b border-gray-100 py-1">
-                          <span className="capitalize">{String(f.factor).replace(/_/g, ' ')}</span>
-                          <span>{Math.round((f.impact || 0) * 100)}%</span>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-sm text-gray-500">No major factors identified.</p>
-                  )}
-                </div>
+
+                <RiskBadge riskBand={riskData.riskBand} />
               </div>
             ) : (
-              <p className="text-sm text-gray-500 mb-3">Run AI analysis to generate patient risk summary.</p>
+              <p className="text-sm text-gray-500 mb-3">
+                Run AI analysis to generate patient risk summary.
+              </p>
             )}
 
             <InlineError message={riskRequest.error} />
+
             <Button
               onClick={loadRiskPrediction}
               loading={riskRequest.loading}
               className="w-full mt-3 py-2.5"
-              aria-label="Run AI risk prediction"
             >
               Run AI Prediction
             </Button>
@@ -192,7 +248,7 @@ export default function PatientDetails() {
             <h2 className="hc-h2 text-hc-700 mb-3">Prescriptions</h2>
             {prescriptions.length ? (
               <div className="overflow-auto">
-                <table className="w-full text-sm text-left text-gray-700 min-w-[460px]" aria-label="Patient prescriptions table">
+                <table className="w-full text-sm text-left text-gray-700 min-w-[460px]">
                   <thead className="text-gray-500 border-b border-gray-200">
                     <tr>
                       <th className="py-2">Doctor</th>
@@ -202,17 +258,34 @@ export default function PatientDetails() {
                   </thead>
                   <tbody>
                     {prescriptions.map((pres) => (
-                      <tr key={pres._id} className="border-b border-gray-100">
-                        <td className="py-2">{pres.doctor?.name || 'N/A'}</td>
-                        <td className="py-2 capitalize">{pres.pharmacyStatus || 'pending'}</td>
-                        <td className="py-2">{pres.createdAt ? format(new Date(pres.createdAt), 'dd MMM yyyy') : '-'}</td>
+                      <tr
+                        key={pres._id}
+                        className="border-b border-gray-100"
+                      >
+                        <td className="py-2">
+                          {pres.doctor?.name || 'N/A'}
+                        </td>
+                        <td className="py-2 capitalize">
+                          {pres.pharmacyStatus || 'pending'}
+                        </td>
+                        <td className="py-2">
+                          {pres.createdAt
+                            ? format(
+                                new Date(pres.createdAt),
+                                'dd MMM yyyy'
+                              )
+                            : '-'}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
             ) : (
-              <EmptyState title="No prescriptions yet" description="Once your doctor issues prescriptions, they will appear here." />
+              <EmptyState
+                title="No prescriptions yet"
+                description="Once your doctor issues prescriptions, they will appear here."
+              />
             )}
           </section>
 
@@ -221,14 +294,30 @@ export default function PatientDetails() {
             {appointments.length ? (
               <ul className="space-y-2 text-sm">
                 {appointments.map((appt) => (
-                  <li key={appt._id} className="p-3 rounded-lg bg-white border border-gray-100 flex items-center justify-between shadow-sm gap-3">
-                    <span className="truncate">{appt.doctor?.name || 'Doctor'} - {appt.status || 'scheduled'}</span>
-                    <span className="text-gray-500 shrink-0">{appt.date ? format(new Date(appt.date), 'dd MMM, hh:mm a') : '-'}</span>
+                  <li
+                    key={appt._id}
+                    className="p-3 rounded-lg bg-white border border-gray-100 flex items-center justify-between shadow-sm gap-3"
+                  >
+                    <span className="truncate">
+                      {appt.doctor?.name || 'Doctor'} -{' '}
+                      {appt.status || 'scheduled'}
+                    </span>
+                    <span className="text-gray-500 shrink-0">
+                      {appt.date
+                        ? format(
+                            new Date(appt.date),
+                            'dd MMM, hh:mm a'
+                          )
+                        : '-'}
+                    </span>
                   </li>
                 ))}
               </ul>
             ) : (
-              <EmptyState title="No appointments scheduled" description="Book your next consultation to see it here." />
+              <EmptyState
+                title="No appointments scheduled"
+                description="Book your next consultation to see it here."
+              />
             )}
           </section>
         </div>

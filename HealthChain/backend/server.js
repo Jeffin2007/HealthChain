@@ -11,7 +11,6 @@ const aiRoutes = require('./routes/aiRoutes');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 
 const app = express();
-
 let isDbConnected = false;
 
 app.use(express.json({ limit: '10mb' }));
@@ -33,9 +32,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/health', (req, res) => {
-  const statusCode = isDbConnected ? 200 : 503;
-
-  res.status(statusCode).json({
+  res.status(isDbConnected ? 200 : 503).json({
     success: isDbConnected,
     message: isDbConnected
       ? 'HealthChain API healthy'
@@ -51,43 +48,37 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+const mongoUri = process.env.MONGODB_URI;
 
-  const mongoUri = process.env.MONGODB_URI;
-
-  if (!mongoUri || mongoUri.includes('<db_password>')) {
-    console.warn(
-      'MongoDB URI is missing or still using <db_password> placeholder. Update backend/.env to enable database connectivity.'
-    );
-  } else {
-    mongoose
-      .connect(mongoUri, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-        serverSelectionTimeoutMS: 10000,
-      })
-      .then(() => {
-        isDbConnected = true;
-        console.log('MongoDB connected');
-      })
-      .catch((err) => {
-        isDbConnected = false;
-        console.error('MongoDB connection error (server still running):', err.message);
-      });
-  }
-
-  mongoose.connection.on('connected', () => {
+mongoose
+  .connect(mongoUri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 10000,
+  })
+  .then(() => {
     isDbConnected = true;
+    console.log('MongoDB connected');
+
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    isDbConnected = false;
+    console.error('MongoDB connection error:', err.message);
   });
 
-  mongoose.connection.on('disconnected', () => {
-    isDbConnected = false;
-    console.warn('MongoDB disconnected');
-  });
+mongoose.connection.on('connected', () => {
+  isDbConnected = true;
+});
 
-  mongoose.connection.on('error', (err) => {
-    isDbConnected = false;
-    console.error('MongoDB runtime error:', err.message);
-  });
+mongoose.connection.on('disconnected', () => {
+  isDbConnected = false;
+  console.warn('MongoDB disconnected');
+});
+
+mongoose.connection.on('error', (err) => {
+  isDbConnected = false;
+  console.error('MongoDB runtime error:', err.message);
 });
