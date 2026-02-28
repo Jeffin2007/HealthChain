@@ -34,7 +34,13 @@ function AppRoutes() {
     <>
       <Navbar />
       <div className="pt-4">
-        <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-600 via-red-500 to-red-700"><LoadingSpinner /></div>}>
+        <Suspense
+          fallback={
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-600 via-red-500 to-red-700">
+              <LoadingSpinner />
+            </div>
+          }
+        >
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/about" element={<About />} />
@@ -42,27 +48,27 @@ function AppRoutes() {
             <Route path="/signin" element={<SignIn />} />
             <Route
               path="/doctors"
-              element={(
+              element={
                 <ProtectedRoute>
                   <Doctors />
                 </ProtectedRoute>
-              )}
+              }
             />
             <Route
               path="/patient/dashboard"
-              element={(
+              element={
                 <ProtectedRoute>
                   <PatientDashboard />
                 </ProtectedRoute>
-              )}
+              }
             />
             <Route
               path="/patient/details"
-              element={(
+              element={
                 <ProtectedRoute>
                   <PatientDetails />
                 </ProtectedRoute>
-              )}
+              }
             />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

@@ -27,13 +27,15 @@ export default function Dashboard() {
         <h1 className="hc-h1 md:text-[3rem] font-extrabold mb-4 text-hc-700">
           Welcome to <span className="text-red-500">HealthChain</span>
         </h1>
-        <p className="hc-body md:text-lg max-w-2xl mx-auto mb-8">
+
+        <p className="hc-body md:text-lg max-w-2xl mx-auto mb-8 text-gray-600">
           The next-generation healthcare platform connecting patients, doctors, and pharmacies seamlessly.
         </p>
 
         <Link
           to="/select-role"
-          className="px-8 py-3 text-lg font-semibold rounded-full bg-gradient-to-r from-red-500 to-red-700 shadow-lg hover:scale-105 hover:shadow-2xl transition-all" aria-label="Get started with HealthChain"
+          className="inline-flex items-center justify-center px-8 py-3 text-lg font-semibold rounded-full bg-gradient-to-r from-red-500 to-red-600 text-white shadow-sm hover:shadow-md hover:-translate-y-[1px] transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-200"
+          aria-label="Get started with HealthChain"
         >
           Get Started
         </Link>

@@ -1,17 +1,14 @@
-const { pushError } = require('./_helpers');
+const { body } = require('express-validator');
 
-function loginValidation(req, res, next) {
-  const { username, password } = req.body || {};
+const loginValidation = [
+  body('username')
+    .trim()
+    .notEmpty()
+    .withMessage('Username is required'),
 
-  if (!username || !String(username).trim()) {
-    pushError(req, 'username is required', 'username');
-  }
-
-  if (!password || String(password).length < 6) {
-    pushError(req, 'password must be at least 6 chars', 'password');
-  }
-
-  next();
-}
+  body('password')
+    .isLength({ min: 6 })
+    .withMessage('Password must be at least 6 characters'),
+];
 
 module.exports = { loginValidation };

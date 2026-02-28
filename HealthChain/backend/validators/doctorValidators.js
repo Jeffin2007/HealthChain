@@ -1,41 +1,40 @@
-const { isISODate, isMongoId, pushError } = require('./_helpers');
+const { body, param } = require('express-validator');
 
-function createPrescriptionValidation(req, res, next) {
-  const { patientId, meds } = req.body || {};
+const createPrescriptionValidation = [
+  body('patientId')
+    .isMongoId()
+    .withMessage('Valid patientId is required'),
 
-  if (!isMongoId(patientId)) {
-    pushError(req, 'valid patientId is required', 'patientId');
-  }
+  body('meds')
+    .isArray({ min: 1 })
+    .withMessage('meds must be a non-empty array'),
 
-  if (!Array.isArray(meds) || meds.length === 0) {
-    pushError(req, 'meds must be a non-empty array', 'meds');
-  } else {
-    meds.forEach((med, idx) => {
-      if (!med?.name) pushError(req, 'med name is required', `meds[${idx}].name`);
-      if (!med?.dosage) pushError(req, 'med dosage is required', `meds[${idx}].dosage`);
-    });
-  }
+  body('meds.*.name')
+    .notEmpty()
+    .withMessage('Medication name is required'),
 
-  next();
-}
+  body('meds.*.dosage')
+    .notEmpty()
+    .withMessage('Medication dosage is required'),
+];
 
-function updatePrescriptionValidation(req, res, next) {
-  const { id } = req.params || {};
-  const { pharmacyStatus, deliveryETA } = req.body || {};
+const updatePrescriptionValidation = [
+  param('id')
+    .isMongoId()
+    .withMessage('Valid prescription id is required'),
 
-  if (!isMongoId(id)) {
-    pushError(req, 'valid prescription id is required', 'id');
-  }
+  body('pharmacyStatus')
+    .optional()
+    .isIn(['pending', 'sent', 'delivered'])
+    .withMessage('Invalid pharmacyStatus'),
 
-  if (pharmacyStatus && !['pending', 'sent', 'delivered'].includes(pharmacyStatus)) {
-    pushError(req, 'invalid pharmacyStatus', 'pharmacyStatus');
-  }
+  body('deliveryETA')
+    .optional()
+    .isISO8601()
+    .withMessage('deliveryETA must be a valid date'),
+];
 
-  if (deliveryETA && !isISODate(deliveryETA)) {
-    pushError(req, 'deliveryETA must be valid date', 'deliveryETA');
-  }
-
-  next();
-}
-
-module.exports = { createPrescriptionValidation, updatePrescriptionValidation };
+module.exports = {
+  createPrescriptionValidation,
+  updatePrescriptionValidation,
+};

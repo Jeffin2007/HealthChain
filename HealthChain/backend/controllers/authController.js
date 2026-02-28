@@ -22,7 +22,10 @@ const login = asyncHandler(async (req, res) => {
 
   const bcrypt = getBcrypt();
   if (!bcrypt) {
-    throw new AppError('Password engine unavailable on this server. Reinstall backend dependencies.', 503);
+    throw new AppError(
+      'Password engine unavailable on this server. Reinstall backend dependencies.',
+      503
+    );
   }
 
   const match = await bcrypt.compare(password, user.passwordHash);
@@ -37,6 +40,7 @@ const login = asyncHandler(async (req, res) => {
   );
 
   delete user.passwordHash;
+
   return sendSuccess(res, { user, token }, 'Login successful');
 });
 
